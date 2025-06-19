@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { StockInfo, MonthlyRevenue, StockOption } from '../types/api';
 import { getStockList, getMonthlyRevenue, getMockStockList, getMockMonthlyRevenue } from '../services/finmind';
 import { API_CONFIG } from '../config/api';
@@ -11,7 +11,7 @@ export const useStockData = () => {
   const [error, setError] = useState<string | null>(null);
   const [useMockData, setUseMockData] = useState(API_CONFIG.USE_MOCK_DATA);
 
-  const fetchStockList = async () => {
+  const fetchStockList = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -44,9 +44,9 @@ export const useStockData = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [useMockData]);
 
-  const fetchRevenueData = async (stockId: string) => {
+  const fetchRevenueData = useCallback(async (stockId: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -70,28 +70,28 @@ export const useStockData = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [useMockData]);
 
-  const handleStockChange = (stockId: string) => {
+  const handleStockChange = useCallback((stockId: string) => {
     setSelectedStock(stockId);
     fetchRevenueData(stockId);
-  };
+  }, [fetchRevenueData]);
 
-  const retry = () => {
+  const retry = useCallback(() => {
     setError(null);
     fetchStockList();
     fetchRevenueData(selectedStock);
-  };
+  }, [fetchStockList, fetchRevenueData, selectedStock]);
 
   useEffect(() => {
     fetchStockList();
-  }, []);
+  }, [fetchStockList]);
 
   useEffect(() => {
     if (stocks.length > 0 && selectedStock) {
       fetchRevenueData(selectedStock);
     }
-  }, [stocks, selectedStock]);
+  }, [stocks, selectedStock, fetchRevenueData]);
 
   return {
     stocks,

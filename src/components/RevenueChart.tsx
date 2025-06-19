@@ -13,6 +13,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  TooltipProps,
 } from 'recharts';
 import { ChartDataPoint } from '../types/api';
 import { formatRevenue } from '../utils/analysis';
@@ -22,11 +23,21 @@ interface RevenueChartProps {
   stockName: string;
 }
 
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    dataKey: string;
+    name: string;
+  }>;
+  label?: string;
+}
+
 const RevenueChart: React.FC<RevenueChartProps> = ({
   data,
   stockName,
 }) => {
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <Box
